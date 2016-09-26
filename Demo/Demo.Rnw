@@ -77,4 +77,6 @@ abline(lm(Sepal.Length ~ Sepal.Width, data=iris[which(iris$Species=="virginica")
  \caption{Iris sepal length vs width, broken down by species.}
  \label{fig:iris}
 \end{figure}
+\newpage
+Much of this demo was taken from Nicola Sartori's "Sweave = R $\cdot$ LaTeX$^2$" tutorial.
 \end{document}
