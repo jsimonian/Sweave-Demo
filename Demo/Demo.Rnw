@@ -1,0 +1,80 @@
+\documentclass[a4paper]{article}
+\SweaveOpts{echo=true}
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+
+
+\section*{Sweave Intro}
+First we define a figure hook:
+<<results=hide>>=
+options(SweaveHooks = list(fig = function() par(mfrow=c(2,2))))
+@
+Then we setup variable definitions without actually evaluating them
+<<xydef,eval=false>>=
+x <- 1:10
+y <- rnorm(x)
+@
+Then we put the pieces together:
+\begin{center}
+<<fig=T>>=
+<<xydef>>
+lm1 <- lm(y~x)
+summary(lm1)
+plot(lm1)
+@
+\end{center}
+
+\newpage
+\section*{Iris Data}
+<<echo=false>>=
+options(SweaveHooks=list(fig=function()
+par(mar=c(5.1, 4.1, 1.1, 2.1))))
+@
+<<echo=false,results=hide>>=
+library(lattice)
+library(xtable)
+data(cats, package="MASS")
+@
+Consider the classic \texttt{iris} data set. The data frame contains measurements of petal and sepals from \Sexpr{nrow(iris)} Iris flowers of three related species:
+(\Sexpr{sum(iris$Species=="setosa")} Iris setosa,
+\Sexpr{sum(iris$Species=="virginica")} Iris virginica, and
+\Sexpr{sum(iris$Species=="versicolor")} Iris versicolor).
+A linear regression model of sepal length as a function of the sepal width can be
+fitted in R using the command
+<<>>=
+lm1 = lm(Sepal.Length ~ Sepal.Width, data=iris)
+lm1
+@
+Tests for significance of the coefficients are shown in
+Table~\ref{tab:coef1}. 
+<<results=tex>>=
+xtable(lm1, caption="Linear regression model for iris data.",
+label="tab:coef1")
+@
+It seems that sepal width is not a very good predictor of sepal length. However, the model performs far better when the data is seperated by species, as seen in a second linear model:
+<<>>=
+lm2 = lm(Sepal.Length ~ Sepal.Width:Species + Species - 1, data=iris)
+lm2
+@
+With coefficients displayed in Table~\ref{tab:coef2}.
+<<results=tex>>=
+xtable(lm2, caption="Linear regression model for iris data, by species",
+label="tab:coef2")
+@
+A scatter plot including regression lines from both experiments is
+shown in Figure~\ref{fig:iris}.
+\SweaveOpts{echo=false}
+\begin{figure}
+ \centering
+<<label=iris,fig=TRUE,width=6,height=5>>=
+trellis.par.set(col.whitebg())
+plot(iris$Sepal.Width, iris$Sepal.Length, pch=21, bg=c("red","green3","blue")[unclass(iris$Species)], main="Iris Data", xlab="Petal length", ylab="Sepal length")
+abline(lm(Sepal.Length ~ Sepal.Width, data=iris)$coefficients, col="black")
+abline(lm(Sepal.Length ~ Sepal.Width, data=iris[which(iris$Species=="setosa"),])$coefficients, col="red")
+abline(lm(Sepal.Length ~ Sepal.Width, data=iris[which(iris$Species=="versicolor"),])$coefficients, col="green3")
+abline(lm(Sepal.Length ~ Sepal.Width, data=iris[which(iris$Species=="virginica"),])$coefficients, col="blue")
+@
+ \caption{Iris sepal length vs width, broken down by species.}
+ \label{fig:iris}
+\end{figure}
+\end{document}
